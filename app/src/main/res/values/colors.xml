@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#ffffff</color>
+    <color name="bg_gradient_start">#bb394c</color>
+    <color name="bg_gradient_end">#21244e</color>
+</resources>
