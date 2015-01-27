@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.rules.perseus.limbo99" >
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_mic"
@@ -12,16 +14,21 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="MainActivity" >>
+            android:parentActivityName=".MainActivity" >
+>
+        </activity>
+        <activity
+            android:name=".GaugeActivity"
+            android:label="@string/title_activity_gauge"
+            android:parentActivityName=".MainActivity" >
         </activity>
     </application>
-
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
 </manifest>

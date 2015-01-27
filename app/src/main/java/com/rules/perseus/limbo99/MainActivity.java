@@ -206,6 +206,9 @@ public class MainActivity extends Activity {
             case R.id.action_settings:
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
+            case R.id.action_gauge:
+                Intent i2 = new Intent(MainActivity.this, GaugeActivity.class);
+                startActivity(i2);
             default:
                 return super.onOptionsItemSelected(item);
         }

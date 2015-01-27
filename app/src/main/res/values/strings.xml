@@ -3,16 +3,17 @@
 
     <string name="app_name">VoiceLimbo</string>
     <string name="action_settings">Settings</string>
+    <string name="action_gauge">Gauge</string>
+
     <string name="hello_world">Hello world!</string>
     <string name="speech_prompt">Say something…</string>
     <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
     <string name="tap_on_mic">Tap on mic to speak buddy</string>
     <string name="title_activity_settings">SettingsActivity</string>
-
     <string name="error">Error</string>
     <string name="error_speech_timeout">Say something dude!</string>
-
     <string name="radio_german">German</string>
     <string name="radio_english">English</string>
+    <string name="title_activity_gauge">GaugeActivity</string>
 
 </resources>
