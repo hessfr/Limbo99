@@ -1,10 +1,9 @@
 package com.rules.perseus.limbo99;
 
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.List;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,6 +28,7 @@ public class MainActivity extends Activity {
     private SpeechRecognizer speechRecognizer;
     private SharedPreferences mPrefs;
     private final int REQ_CODE_SPEECH_INPUT = 100;
+    WordsDataSource datasource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +65,22 @@ public class MainActivity extends Activity {
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new listener());
+
+
+        datasource = new WordsDataSource(this);
+        datasource.open();
+
+        datasource.createWordEN("English entry");
+        datasource.createWordDE("Deutscher Eintrag");
+
+        List<WordEN> valuesEN = datasource.getAllWordsEN();
+        for (WordEN w : valuesEN) {
+            Log.i(TAG, w.getWord());
+        }
+        List<WordDE> valuesDE = datasource.getAllWordsDE();
+        for (WordDE w : valuesDE) {
+            Log.i(TAG, w.getWord());
+        }
 
     }
 
@@ -156,6 +172,18 @@ public class MainActivity extends Activity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        datasource.open();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        datasource.close();
+        super.onPause();
     }
 
 }
