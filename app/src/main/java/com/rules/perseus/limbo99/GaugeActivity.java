@@ -36,7 +36,7 @@ public class GaugeActivity extends Activity {
                 Random rand = new Random();
                 int randomNum = rand.nextInt((myGauge.maxDegrees - myGauge.minDegrees) + 1) + myGauge.minDegrees;
 
-                myGauge.setHandTarget(randomNum);
+                myGauge.setValueTarget(randomNum);
             }
         });
 

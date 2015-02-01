@@ -68,17 +68,23 @@ public final class Gauge extends View {
     private static final int totalNicks = 100;
     private static final float degreesPerNick = 360.0f / totalNicks;
     private static final int centerDegree = 50; // the one in the top center (12 o'clock)
-    public static final int minDegrees = -20;
-    public static final int maxDegrees = 120;
+    public static final int minDegrees = 0;
+    public static final int maxDegrees = 100;
 
     // hand dynamics -- all are angular expressed in F degrees
     private boolean handInitialized = false;
     private float handPosition = centerDegree;
-    private float handTarget = centerDegree;
+    private float handTarget = centerDegree; // of the animation itself (will changed when jittering)
+    private float valueTarget = centerDegree; // of the actual value (won't change when jittering)
     private float handVelocity = 0.0f;
     private float handAcceleration = 0.0f;
     private long lastHandMoveTime = -1L;
 
+    private boolean jitterState = true;
+    private boolean tmpBool = true; //TODO: delete
+
+    // defines how fast the hand is moving:
+    private float accelerationFactor = 5.0f;
 
     public Gauge(Context context) {
         super(context);
@@ -90,7 +96,7 @@ public final class Gauge extends View {
         super(context, attrs);
         init();
 
-        setHandTarget((float) -5);
+        setValueTarget((float) 0);
     }
 
     public Gauge(Context context, AttributeSet attrs, int defStyle) {
@@ -344,7 +350,7 @@ public final class Gauge extends View {
                 0.5f - logo.getHeight() * logoScale / 2.0f);
 
         int color = 0x00000000;
-        float position = getRelativeTemperaturePosition();
+        float position = getRelativePosition();
         if (position < 0) {
             color |= (int) ((0xf0) * -position); // blue
         } else {
@@ -380,24 +386,6 @@ public final class Gauge extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
-        drawBackground(canvas);
-
-        float scale = (float) getWidth();
-        canvas.save(Canvas.MATRIX_SAVE_FLAG);
-        canvas.scale(scale, scale);
-
-        drawLogo(canvas);
-        drawHand(canvas);
-
-        canvas.restore();
-
-        if (handNeedsToMove()) {
-            moveHand();
-        }
-    }
-
-    @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         Log.d(TAG, "Size changed to " + w + "x" + h);
 
@@ -421,13 +409,43 @@ public final class Gauge extends View {
         drawTitle(backgroundCanvas);
     }
 
-    private boolean handNeedsToMove() {
-        return Math.abs(handPosition - handTarget) > 0.01f;
+    @Override
+    protected void onDraw(Canvas canvas) {
+        drawBackground(canvas);
+
+        float scale = (float) getWidth();
+        canvas.save(Canvas.MATRIX_SAVE_FLAG);
+        canvas.scale(scale, scale);
+
+        drawLogo(canvas);
+        drawHand(canvas);
+
+        canvas.restore();
+
+        moveHand();
     }
 
     private void moveHand() {
-        if (! handNeedsToMove()) {
-            return;
+
+        if (jitterState == false) {
+            if (Math.abs(handPosition - handTarget) <= 0.01f) {
+                // Log.i(TAG, "Value target reached");
+                // The movement to the valueTarget is completed, i.e. start jittering:
+                setJitterTarget();
+                jitterState = true;
+                return;
+            }
+            // Log.i(TAG, "Moving (to change value)");
+        }
+
+        if (jitterState == true) {
+            if (Math.abs(handPosition - handTarget) <= 0.01f) {
+                // Log.i(TAG, "Jitter target reached");
+                // The movement to the intermediate target (for jittering) is completed, i.e. set new value:
+                setJitterTarget();
+                return;
+            }
+            // Log.i(TAG, "Moving (jitter)");
         }
 
         if (lastHandMoveTime != -1L) {
@@ -436,7 +454,7 @@ public final class Gauge extends View {
 
             float direction = Math.signum(handVelocity);
             if (Math.abs(handVelocity) < 90.0f) {
-                handAcceleration = 5.0f * (handTarget - handPosition);
+                handAcceleration = accelerationFactor * (handTarget - handPosition);
             } else {
                 handAcceleration = 0.0f;
             }
@@ -457,7 +475,7 @@ public final class Gauge extends View {
         }
     }
 
-    private float getRelativeTemperaturePosition() {
+    private float getRelativePosition() {
         if (handPosition < centerDegree) {
             return - (centerDegree - handPosition) / (float) (centerDegree - minDegrees);
         } else {
@@ -465,14 +483,26 @@ public final class Gauge extends View {
         }
     }
 
-    public void setHandTarget(float temperature) {
-        if (temperature < minDegrees) {
-            temperature = minDegrees;
-        } else if (temperature > maxDegrees) {
-            temperature = maxDegrees;
-        }
-        handTarget = temperature;
+    public void setValueTarget(float newValue) {
+        jitterState = false;
+        // Log.i(TAG, "setValueTarget");
+        handTarget = newValue;
+        valueTarget = newValue;
         handInitialized = true;
         invalidate();
     }
+
+    public void setJitterTarget() {
+        // Log.i(TAG, "setJitterTarget");
+        if (tmpBool == true) {
+            handTarget = valueTarget + 10;
+            tmpBool = false;
+        } else {
+            handTarget = valueTarget - 10;
+            tmpBool = true;
+        }
+        invalidate();
+    }
+
+
 }
