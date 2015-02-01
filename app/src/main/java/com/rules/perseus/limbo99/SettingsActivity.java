@@ -13,7 +13,6 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
 
-
 public class SettingsActivity extends Activity {
 
     private RadioGroup radioLanguage;

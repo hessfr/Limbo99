@@ -66,44 +66,7 @@ public class MainActivity extends Activity {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new listener());
 
-
-
-//        btnSpeak.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                promptSpeechInput();
-//            }
-//        });
-
     }
-
-
-//    /**
-//     * Showing google speech input dialog
-//     * */
-//    private void promptSpeechInput() {
-//
-//        final String emptyString = "empty";
-//        String inputLanguage = mPrefs.getString("input_language", emptyString);
-//        if (inputLanguage.equals(emptyString)) {
-//            inputLanguage = "en";
-//        }
-//
-//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-//                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, inputLanguage);
-//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-//                getString(R.string.speech_prompt));
-//        try {
-//            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
-//        } catch (ActivityNotFoundException a) {
-//            Toast.makeText(getApplicationContext(),
-//                    getString(R.string.speech_not_supported),
-//                    Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
     class listener implements RecognitionListener
     {
@@ -171,27 +134,6 @@ public class MainActivity extends Activity {
         }
     }
 
-//    /**
-//     * Receiving speech input
-//     * */
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        switch (requestCode) {
-//            case REQ_CODE_SPEECH_INPUT: {
-//                if (resultCode == RESULT_OK && null != data) {
-//
-//                    ArrayList<String> result = data
-//                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-//                    txtSpeechInput.setText(result.get(0));
-//                }
-//                break;
-//            }
-//
-//        }
-//    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -202,16 +144,18 @@ public class MainActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Take appropriate action for each action item click
+
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(i);
+                // Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                return true;
             case R.id.action_gauge:
-                Intent i2 = new Intent(MainActivity.this, GaugeActivity.class);
-                startActivity(i2);
-            default:
-                return super.onOptionsItemSelected(item);
+                // Intent i2 = new Intent(MainActivity.this, GaugeActivity.class);
+                startActivity(new Intent(MainActivity.this, GaugeActivity.class));
+                return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
 }
