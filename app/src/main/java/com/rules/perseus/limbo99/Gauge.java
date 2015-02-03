@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.View;
 
 import java.util.List;
+import java.util.Random;
 
 public final class Gauge extends View {
 
@@ -81,10 +82,12 @@ public final class Gauge extends View {
     private long lastHandMoveTime = -1L;
 
     private boolean jitterState = true;
-    private boolean tmpBool = true; //TODO: delete
+    private boolean oscillationSign = true;
+    int maxOscillation = 4;
 
     // defines how fast the hand is moving:
-    private float accelerationFactor = 5.0f;
+    private float accFactorJitter = 150.0f;
+    private float accFactorValue = 10.0f;
 
     public Gauge(Context context) {
         super(context);
@@ -427,51 +430,60 @@ public final class Gauge extends View {
 
     private void moveHand() {
 
-        if (jitterState == false) {
-            if (Math.abs(handPosition - handTarget) <= 0.01f) {
-                // Log.i(TAG, "Value target reached");
-                // The movement to the valueTarget is completed, i.e. start jittering:
-                setJitterTarget();
-                jitterState = true;
-                return;
-            }
-            // Log.i(TAG, "Moving (to change value)");
-        }
-
-        if (jitterState == true) {
-            if (Math.abs(handPosition - handTarget) <= 0.01f) {
-                // Log.i(TAG, "Jitter target reached");
-                // The movement to the intermediate target (for jittering) is completed, i.e. set new value:
-                setJitterTarget();
-                return;
-            }
-            // Log.i(TAG, "Moving (jitter)");
-        }
-
         if (lastHandMoveTime != -1L) {
             long currentTime = System.currentTimeMillis();
             float delta = (currentTime - lastHandMoveTime) / 1000.0f;
 
-            float direction = Math.signum(handVelocity);
+            float accelerationFactor = 0;
+
+            if (jitterState==true) {
+                accelerationFactor = accFactorJitter;
+            } else {
+                accelerationFactor = accFactorValue;
+            }
+
             if (Math.abs(handVelocity) < 90.0f) {
                 handAcceleration = accelerationFactor * (handTarget - handPosition);
             } else {
                 handAcceleration = 0.0f;
             }
+
+            float direction = Math.signum(handVelocity);
+
             handPosition += handVelocity * delta;
             handVelocity += handAcceleration * delta;
-            if ((handTarget - handPosition) * direction < 0.01f * direction) {
-                handPosition = handTarget;
+
+            if ((handTarget - handPosition) * direction < 1e-6f * direction) {
+                //Log.i(TAG, "handPosistion: " + handPosition + " handTarget: " + handTarget + " direction: " + direction);
+                if (Math.abs(handTarget - handPosition) < 1e-6f) {
+                    handPosition = handTarget;
+                }
                 handVelocity = 0.0f;
                 handAcceleration = 0.0f;
                 lastHandMoveTime = -1L;
             } else {
                 lastHandMoveTime = System.currentTimeMillis();
             }
+
             invalidate();
         } else {
             lastHandMoveTime = System.currentTimeMillis();
             moveHand();
+        }
+
+        // When the target (valueTarget or jitterTarget) is reached:
+        if (Math.abs(handPosition - handTarget) <= 1.0f) {
+            if (jitterState == false) {
+                // The movement to the valueTarget is completed, i.e. start jittering:
+                setJitterTarget();
+                jitterState = true;
+                return;
+            } else {
+                // Log.i(TAG, "Jitter target reached");
+                // The movement to the intermediate target (for jittering) is completed, i.e. set new value:
+                setJitterTarget();
+                return;
+            }
         }
     }
 
@@ -492,17 +504,20 @@ public final class Gauge extends View {
         invalidate();
     }
 
-    public void setJitterTarget() {
+    private void setJitterTarget() {
         // Log.i(TAG, "setJitterTarget");
-        if (tmpBool == true) {
-            handTarget = valueTarget + 10;
-            tmpBool = false;
+
+        Random rand = new Random();
+        int oscillation = rand.nextInt(maxOscillation);
+
+        if (oscillationSign == true) {
+            handTarget = valueTarget + oscillation;
+            oscillationSign = false;
         } else {
-            handTarget = valueTarget - 10;
-            tmpBool = true;
+            handTarget = valueTarget - oscillation;
+            oscillationSign = true;
         }
+        handInitialized = true;
         invalidate();
     }
-
-
 }
