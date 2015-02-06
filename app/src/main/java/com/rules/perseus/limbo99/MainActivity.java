@@ -1,5 +1,7 @@
 package com.rules.perseus.limbo99;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,16 +69,36 @@ public class MainActivity extends Activity {
         speechRecognizer.setRecognitionListener(new listener());
 
 
+        DatabaseHandler dbHelper = new DatabaseHandler(this);
+
+        try {
+            dbHelper.createDataBase();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            dbHelper.openDataBase();
+        }catch(SQLException sqle){
+            try {
+                throw sqle;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
         datasource = new WordsDataSource(this);
         datasource.open();
 
-        datasource.createWordEN("English entry");
-        datasource.createWordDE("Deutscher Eintrag");
+        datasource.createWordEN("Bullshit");
 
         List<WordEN> valuesEN = datasource.getAllWordsEN();
         for (WordEN w : valuesEN) {
             Log.i(TAG, w.getWord());
         }
+
+        datasource.createWordDE("Deutsch");
+
         List<WordDE> valuesDE = datasource.getAllWordsDE();
         for (WordDE w : valuesDE) {
             Log.i(TAG, w.getWord());
