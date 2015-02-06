@@ -96,6 +96,26 @@ public class WordsDataSource {
         return words;
     }
 
+    public boolean checkIfWordInTable(String language, String queryWord) {
+        String tableName = null;
+        if (language.equals("de")) {
+            tableName = dbHelper.TABLE_DE;
+        } else if (language.equals("en")) {
+            tableName = dbHelper.TABLE_EN;
+        } else {
+            Log.e(TAG, "input language: " + language + " not recognized, using default language (EN) instead");
+            tableName = dbHelper.TABLE_EN;
+        }
+        String queryString = "SELECT 1 FROM " + tableName + " WHERE word=\"" + queryWord + "\";";
+        //Log.d(TAG, queryString);
+        Cursor cursor = database.rawQuery(queryString, null);
+
+        if (cursor.getCount() <= 0) {
+            return false;
+        }
+        return true;
+    }
+
     private WordEN cursorToWordEN(Cursor cursor) {
         WordEN word = new WordEN();
         word.setId(cursor.getLong(0));

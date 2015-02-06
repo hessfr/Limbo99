@@ -47,9 +47,8 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 if (v.getId() == R.id.btnSpeak) {
 
-                    final String emptyString = "empty";
-                    String inputLanguage = mPrefs.getString("input_language", emptyString);
-                    if (inputLanguage.equals(emptyString)) {
+                    String inputLanguage = mPrefs.getString("input_language", "");
+                    if (inputLanguage.equals("")) {
                         inputLanguage = "en";
                     }
 
@@ -90,18 +89,32 @@ public class MainActivity extends Activity {
         datasource = new WordsDataSource(this);
         datasource.open();
 
-        datasource.createWordEN("Bullshit");
+//        datasource.createWordEN("Bullshit");
+//
+//        List<WordEN> valuesEN = datasource.getAllWordsEN();
+//        for (WordEN w : valuesEN) {
+//            Log.i(TAG, w.getWord());
+//        }
+//
+//        datasource.createWordDE("Deutsch");
+//
+//        List<WordDE> valuesDE = datasource.getAllWordsDE();
+//        for (WordDE w : valuesDE) {
+//            Log.i(TAG, w.getWord());
+//        }
 
-        List<WordEN> valuesEN = datasource.getAllWordsEN();
-        for (WordEN w : valuesEN) {
-            Log.i(TAG, w.getWord());
+        String inputLanguage = mPrefs.getString("input_language", "");
+        if (inputLanguage.equals("")) {
+            inputLanguage = "en";
         }
 
-        datasource.createWordDE("Deutsch");
+        String seachQuery = "shit";
+        Boolean res = datasource.checkIfWordInTable(inputLanguage, seachQuery);
 
-        List<WordDE> valuesDE = datasource.getAllWordsDE();
-        for (WordDE w : valuesDE) {
-            Log.i(TAG, w.getWord());
+        if (res == true) {
+            Log.i(TAG, "Word " + seachQuery + " found");
+        } else {
+            Log.i(TAG, "Word " + seachQuery + " NOT found");
         }
 
     }
