@@ -16,6 +16,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHandler";
 
+    private static DatabaseHandler privateIntance = null;
+
     public static final String TABLE_EN = "table_en";
     public static final String TABLE_DE = "table_de";
     public static final String COLUMN_ID = "_id";
@@ -28,12 +30,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private final Context myContext;
     private SQLiteDatabase myDataBase;
 
-    /**
-     * Constructor
-     * Takes and keeps a reference of the passed context in order to access to the application assets and resources.
-     * @param context
-     */
-    public DatabaseHandler(Context context) {
+    public static DatabaseHandler getInstance(Context ctx) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (privateIntance == null) {
+            privateIntance = new DatabaseHandler(ctx.getApplicationContext());
+        }
+        return privateIntance;
+    }
+
+    // private constructor
+    private DatabaseHandler(Context context) {
 
         super(context, DATABASE_NAME, null, 1);
         this.myContext = context;
@@ -143,6 +152,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if(myDataBase != null)
             myDataBase.close();
 
+        Log.i(TAG, "ccccccccccccccccccccccccclosing");
         super.close();
 
     }

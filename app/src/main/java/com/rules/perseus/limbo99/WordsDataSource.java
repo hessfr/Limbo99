@@ -21,7 +21,9 @@ public class WordsDataSource {
             DatabaseHandler.COLUMN_WORD };
 
     public WordsDataSource(Context context) {
-        dbHelper = new DatabaseHandler(context);
+
+//        dbHelper = new DatabaseHandler(context);
+        dbHelper = DatabaseHandler.getInstance(context);
     }
 
     public void open() throws SQLException {
@@ -29,6 +31,7 @@ public class WordsDataSource {
     }
 
     public void close() {
+
         dbHelper.close();
     }
 

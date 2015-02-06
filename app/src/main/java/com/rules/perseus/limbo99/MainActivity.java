@@ -67,8 +67,7 @@ public class MainActivity extends Activity {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new listener());
 
-
-        DatabaseHandler dbHelper = new DatabaseHandler(this);
+        DatabaseHandler dbHelper = DatabaseHandler.getInstance(this);
 
         try {
             dbHelper.createDataBase();
@@ -88,20 +87,6 @@ public class MainActivity extends Activity {
 
         datasource = new WordsDataSource(this);
         datasource.open();
-
-//        datasource.createWordEN("Bullshit");
-//
-//        List<WordEN> valuesEN = datasource.getAllWordsEN();
-//        for (WordEN w : valuesEN) {
-//            Log.i(TAG, w.getWord());
-//        }
-//
-//        datasource.createWordDE("Deutsch");
-//
-//        List<WordDE> valuesDE = datasource.getAllWordsDE();
-//        for (WordDE w : valuesDE) {
-//            Log.i(TAG, w.getWord());
-//        }
 
         String inputLanguage = mPrefs.getString("input_language", "");
         if (inputLanguage.equals("")) {
