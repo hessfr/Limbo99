@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognitionListener;
@@ -31,6 +33,7 @@ public class MainActivity extends Activity {
     private SharedPreferences mPrefs;
     private final int REQ_CODE_SPEECH_INPUT = 100;
     WordsDataSource datasource;
+    Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +51,6 @@ public class MainActivity extends Activity {
                 if (v.getId() == R.id.btnSpeak) {
 
                     startListenerIntent(getLanguagePref());
-
                 }
             }
         });
@@ -98,6 +100,7 @@ public class MainActivity extends Activity {
         public void onReadyForSpeech(Bundle params)
         {
             Log.d(TAG, "onReadyForSpeech");
+            unmuteAudio(context);
         }
         public void onBeginningOfSpeech()
         {
@@ -118,7 +121,6 @@ public class MainActivity extends Activity {
         public void onError(int error)
         {
             Log.d(TAG,  "error " +  error);
-
 
             if (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
                 Toast.makeText(getApplicationContext(),
@@ -171,6 +173,7 @@ public class MainActivity extends Activity {
 
     private void startListenerIntent(String inputLanguage) {
 
+        muteAudio(context);
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, inputLanguage);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -187,6 +190,28 @@ public class MainActivity extends Activity {
         }
         return inputLanguage;
     }
+
+    // Mute audio that we don't here the beep sound when the recording starts:
+    private void muteAudio(Context context) {
+        Log.i(TAG, "Muting audio");
+        AudioManager audioManager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
+        audioManager.setStreamMute(AudioManager.STREAM_ALARM, true);
+        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+        audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+        audioManager.setStreamMute(AudioManager.STREAM_SYSTEM, true);
+    }
+
+    private void unmuteAudio(Context context) {
+        Log.i(TAG, "Unmuting audio");
+        AudioManager audioManager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
+        audioManager.setStreamMute(AudioManager.STREAM_ALARM, false);
+        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+        audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+        audioManager.setStreamMute(AudioManager.STREAM_SYSTEM, false);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
