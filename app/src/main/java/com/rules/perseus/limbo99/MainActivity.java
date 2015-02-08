@@ -47,19 +47,8 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 if (v.getId() == R.id.btnSpeak) {
 
-                    String inputLanguage = mPrefs.getString("input_language", "");
-                    if (inputLanguage.equals("")) {
-                        inputLanguage = "en";
-                    }
+                    startListenerIntent(getLanguagePref());
 
-                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, inputLanguage);
-                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                    intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "voice.recognition.test");
-
-                    intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-                    speechRecognizer.startListening(intent);
-                    Log.i(TAG, "on click");
                 }
             }
         });
@@ -140,6 +129,8 @@ public class MainActivity extends Activity {
                         getString(R.string.error),
                         Toast.LENGTH_SHORT).show();
             }
+
+            startListenerIntent(getLanguagePref());
         }
         public void onResults(Bundle results)
         {
@@ -148,17 +139,25 @@ public class MainActivity extends Activity {
             ArrayList data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             for (int i = 0; i < data.size(); i++)
             {
-                Log.d(TAG, "result " + data.get(i));
+//                Log.d(TAG, "result " + data.get(i));
                 str += data.get(i);
             }
 
             try {
-                txtSpeechInput.setText((String) data.get(0));
+                String textToDisplay = (String) txtSpeechInput.getText();
+                if (textToDisplay.isEmpty()) {
+                    textToDisplay = (String) data.get(0);
+                } else {
+                    textToDisplay = textToDisplay + " - " + (String) data.get(0);
+                }
+                txtSpeechInput.setText(textToDisplay);
             } catch (Exception e) {
 
             }
 
-            // txtSpeechInput.setText("results: " + String.valueOf(data.size()));
+            // Immediately start a new intent:
+            startListenerIntent(getLanguagePref());
+
         }
         public void onPartialResults(Bundle partialResults)
         {
@@ -168,6 +167,25 @@ public class MainActivity extends Activity {
         {
             Log.d(TAG, "onEvent " + eventType);
         }
+    }
+
+    private void startListenerIntent(String inputLanguage) {
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, inputLanguage);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "voice.recognition.test");
+
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+        speechRecognizer.startListening(intent);
+    }
+
+    private String getLanguagePref() {
+        String inputLanguage = mPrefs.getString("input_language", "");
+        if (inputLanguage.equals("")) {
+            inputLanguage = "en";
+        }
+        return inputLanguage;
     }
 
     @Override

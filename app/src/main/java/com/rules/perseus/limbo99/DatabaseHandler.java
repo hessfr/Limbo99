@@ -152,7 +152,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if(myDataBase != null)
             myDataBase.close();
 
-        Log.i(TAG, "ccccccccccccccccccccccccclosing");
         super.close();
 
     }
