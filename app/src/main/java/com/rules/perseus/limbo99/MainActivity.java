@@ -19,19 +19,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-    private static final String TAG = "Mainactivity";
+    private static final String TAG = "MainActivity";
 
     private TextView txtSpeechInput;
-    private ImageButton btnSpeak;
+    private ImageButton micButton;
     private SpeechRecognizer speechRecognizer;
     private SharedPreferences mPrefs;
     private final int REQ_CODE_SPEECH_INPUT = 100;
+    private boolean isRunning;
     WordsDataSource datasource;
     Context context = this;
 
@@ -42,15 +45,21 @@ public class MainActivity extends Activity {
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
-        btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
+        isRunning = false;
 
-        btnSpeak.setOnClickListener(new View.OnClickListener() {
+        txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
+        micButton = (ImageButton) findViewById(R.id.micButton);
+
+        micButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v.getId() == R.id.btnSpeak) {
-
-                    startListenerIntent(getLanguagePref());
+                if (v.getId() == R.id.micButton) {
+                    if (isRunning == false) {
+                        startListenerIntent(getLanguagePref());
+                        changeRecordingState();
+                    } else {
+                        changeRecordingState();
+                    }
                 }
             }
         });
@@ -123,13 +132,9 @@ public class MainActivity extends Activity {
             Log.d(TAG,  "error " +  error);
 
             if (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.error_speech_timeout),
-                        Toast.LENGTH_SHORT).show();
+                // TODO: do we need to handle this?
             } else {
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.error),
-                        Toast.LENGTH_SHORT).show();
+                // TODO: do we need to handle this?
             }
 
             startListenerIntent(getLanguagePref());
@@ -157,9 +162,11 @@ public class MainActivity extends Activity {
 
             }
 
-            // Immediately start a new intent:
-            startListenerIntent(getLanguagePref());
-
+            if (isRunning == true) {
+                // Immediately start a new intent:
+                startListenerIntent(getLanguagePref());
+            }
+            Log.i(TAG, "onResult, isRunning = " + isRunning);
         }
         public void onPartialResults(Bundle partialResults)
         {
@@ -211,7 +218,20 @@ public class MainActivity extends Activity {
         audioManager.setStreamMute(AudioManager.STREAM_RING, false);
         audioManager.setStreamMute(AudioManager.STREAM_SYSTEM, false);
     }
-
+    
+    private void changeRecordingState() {
+        if (isRunning == false) {
+            // Start recording
+            Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
+            micButton.startAnimation(pulse);
+            isRunning = true;
+        } else {
+            // Stop recording
+            micButton.clearAnimation();
+            isRunning = false;
+            Log.i(TAG, "Recording stopped");
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -153,7 +153,7 @@ public final class Gauge extends View {
     }
 
     private String getTitle() {
-        return "Perseus rules!";
+        return "abcdefgh!";
     }
 
     private void initDrawingTools() {
