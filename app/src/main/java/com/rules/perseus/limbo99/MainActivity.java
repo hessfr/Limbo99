@@ -3,12 +3,14 @@ package com.rules.perseus.limbo99;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognitionListener;
@@ -90,15 +92,19 @@ public class MainActivity extends Activity {
             inputLanguage = "en";
         }
 
-        String seachQuery = "shit";
-        Boolean res = datasource.checkIfWordInTable(inputLanguage, seachQuery);
+//        DatabaseLookupTask task = new DatabaseLookupTask();
+//        ArrayList<String> arrayList= new ArrayList<String>();
+//        arrayList.add("abc");
+//        arrayList.add("abcdec");
+//        arrayList.add("shit");
+//        arrayList.add("abc");
+//        task.execute(arrayList);
 
-        if (res) {
-            Log.i(TAG, "Word " + seachQuery + " found");
-        } else {
-            Log.i(TAG, "Word " + seachQuery + " NOT found");
-        }
-
+//        if (res) {
+//            Log.i(TAG, "Word " + seachQuery + " found");
+//        } else {
+//            Log.i(TAG, "Word " + seachQuery + " NOT found");
+//        }
     }
 
     class listener implements RecognitionListener
@@ -140,13 +146,9 @@ public class MainActivity extends Activity {
         {
 
             ArrayList data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-//            String str = new String();
-//            Log.d(TAG, "onResults " + results);
-//            for (int i = 0; i < data.size(); i++)
-//            {
-//                Log.d(TAG, "result " + data.get(i));
-//                str += data.get(i);
-//            }
+
+            DatabaseLookupTask task = new DatabaseLookupTask();
+            task.execute(data);
 
             try {
                 String textToDisplay = (String) txtSpeechInput.getText();
@@ -164,7 +166,7 @@ public class MainActivity extends Activity {
                 // Immediately start a new intent:
                 startListenerIntent(getLanguagePref());
             }
-            Log.i(TAG, "onResult, isRunning = " + isRunning);
+
         }
         public void onPartialResults(Bundle partialResults)
         {
@@ -184,7 +186,7 @@ public class MainActivity extends Activity {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "voice.recognition.test");
 
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
         speechRecognizer.startListening(intent);
     }
 
@@ -240,15 +242,12 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Take appropriate action for each action item click
 
         switch (item.getItemId()) {
             case R.id.action_settings:
-                // Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
             case R.id.action_gauge:
-                // Intent i2 = new Intent(MainActivity.this, GaugeActivity.class);
                 startActivity(new Intent(MainActivity.this, GaugeActivity.class));
                 return true;
         }
@@ -266,5 +265,46 @@ public class MainActivity extends Activity {
         datasource.close();
         super.onPause();
     }
+
+    private class DatabaseLookupTask extends AsyncTask<ArrayList, Void, Double> {
+        @Override
+        protected Double doInBackground(ArrayList... inArrayList) {
+
+            datasource = new WordsDataSource(context);
+            datasource.open();
+
+            String inputLanguage = mPrefs.getString("input_language", "");
+            if (inputLanguage.equals("")) {
+                inputLanguage = "en";
+            }
+
+            int wordsFoundInDB = 0;
+            int totalWords = 0;
+
+            for (ArrayList<String> arrayList : inArrayList) {
+
+                totalWords = arrayList.size();
+                for (String str : arrayList) {
+                    Boolean res = datasource.checkIfWordInTable(inputLanguage, str);
+
+                    if (res) {
+                        wordsFoundInDB++;
+                        Log.i(TAG, "Word " + str + " found");
+                    }
+                }
+            }
+            Double hitRate = wordsFoundInDB/( (double) totalWords);
+
+            Log.i(TAG, "hitRate " + hitRate);
+
+            return hitRate;
+        }
+
+        @Override
+        protected void onPostExecute(Double result) {
+
+        }
+    }
+
 
 }
