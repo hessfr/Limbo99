@@ -3,7 +3,6 @@ package com.rules.perseus.limbo99;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -23,7 +22,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -33,7 +31,6 @@ public class MainActivity extends Activity {
     private ImageButton micButton;
     private SpeechRecognizer speechRecognizer;
     private SharedPreferences mPrefs;
-    private final int REQ_CODE_SPEECH_INPUT = 100;
     private boolean isRunning;
     WordsDataSource datasource;
     Context context = this;
@@ -54,7 +51,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (v.getId() == R.id.micButton) {
-                    if (isRunning == false) {
+                    if (!isRunning) {
                         startListenerIntent(getLanguagePref());
                         changeRecordingState();
                     } else {
@@ -96,7 +93,7 @@ public class MainActivity extends Activity {
         String seachQuery = "shit";
         Boolean res = datasource.checkIfWordInTable(inputLanguage, seachQuery);
 
-        if (res == true) {
+        if (res) {
             Log.i(TAG, "Word " + seachQuery + " found");
         } else {
             Log.i(TAG, "Word " + seachQuery + " NOT found");
@@ -109,7 +106,7 @@ public class MainActivity extends Activity {
         public void onReadyForSpeech(Bundle params)
         {
             Log.d(TAG, "onReadyForSpeech");
-            unmuteAudio(context);
+            unmuteAudio();
         }
         public void onBeginningOfSpeech()
         {
@@ -141,25 +138,26 @@ public class MainActivity extends Activity {
         }
         public void onResults(Bundle results)
         {
-            String str = new String();
-            Log.d(TAG, "onResults " + results);
+
             ArrayList data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-            for (int i = 0; i < data.size(); i++)
-            {
+//            String str = new String();
+//            Log.d(TAG, "onResults " + results);
+//            for (int i = 0; i < data.size(); i++)
+//            {
 //                Log.d(TAG, "result " + data.get(i));
-                str += data.get(i);
-            }
+//                str += data.get(i);
+//            }
 
             try {
                 String textToDisplay = (String) txtSpeechInput.getText();
                 if (textToDisplay.isEmpty()) {
                     textToDisplay = (String) data.get(0);
                 } else {
-                    textToDisplay = textToDisplay + " - " + (String) data.get(0);
+                    textToDisplay = textToDisplay + " - " + data.get(0);
                 }
                 txtSpeechInput.setText(textToDisplay);
             } catch (Exception e) {
-
+                // TODO
             }
 
             if (isRunning == true) {
@@ -180,7 +178,7 @@ public class MainActivity extends Activity {
 
     private void startListenerIntent(String inputLanguage) {
 
-        muteAudio(context);
+        muteAudio();
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, inputLanguage);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -199,7 +197,7 @@ public class MainActivity extends Activity {
     }
 
     // Mute audio that we don't here the beep sound when the recording starts:
-    private void muteAudio(Context context) {
+    private void muteAudio() {
         Log.i(TAG, "Muting audio");
         AudioManager audioManager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
@@ -209,7 +207,7 @@ public class MainActivity extends Activity {
         audioManager.setStreamMute(AudioManager.STREAM_SYSTEM, true);
     }
 
-    private void unmuteAudio(Context context) {
+    private void unmuteAudio() {
         Log.i(TAG, "Unmuting audio");
         AudioManager audioManager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);

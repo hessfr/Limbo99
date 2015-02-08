@@ -15,10 +15,6 @@ import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -32,8 +28,6 @@ import java.util.Random;
 public final class Gauge extends View {
 
     private static final String TAG = Gauge.class.getSimpleName();
-
-    private Handler handler;
 
     // drawing tools
     private RectF rimRect;
@@ -147,7 +141,6 @@ public final class Gauge extends View {
     }
 
     private void init() {
-        handler = new Handler();
 
         initDrawingTools();
     }
@@ -334,8 +327,7 @@ public final class Gauge extends View {
 
     private int nickToDegree(int nick) {
         int rawDegree = ((nick < totalNicks / 2) ? nick : (nick - totalNicks)) * 2;
-        int shiftedDegree = rawDegree + centerDegree;
-        return shiftedDegree;
+        return rawDegree + centerDegree;
     }
 
     private float degreeToAngle(float degree) {
@@ -434,7 +426,7 @@ public final class Gauge extends View {
             long currentTime = System.currentTimeMillis();
             float delta = (currentTime - lastHandMoveTime) / 1000.0f;
 
-            float accelerationFactor = 0;
+            float accelerationFactor;
 
             if (jitterState==true) {
                 accelerationFactor = accFactorJitter;
@@ -473,17 +465,16 @@ public final class Gauge extends View {
 
         // When the target (valueTarget or jitterTarget) is reached:
         if (Math.abs(handPosition - handTarget) <= 1.0f) {
-            if (jitterState == false) {
+            if (!jitterState) {
                 // The movement to the valueTarget is completed, i.e. start jittering:
                 setJitterTarget();
                 jitterState = true;
-                return;
             } else {
                 // Log.i(TAG, "Jitter target reached");
                 // The movement to the intermediate target (for jittering) is completed, i.e. set new value:
                 setJitterTarget();
-                return;
             }
+            return;
         }
     }
 
@@ -510,7 +501,7 @@ public final class Gauge extends View {
         Random rand = new Random();
         int oscillation = rand.nextInt(maxOscillation);
 
-        if (oscillationSign == true) {
+        if (oscillationSign) {
             handTarget = valueTarget + oscillation;
             oscillationSign = false;
         } else {
