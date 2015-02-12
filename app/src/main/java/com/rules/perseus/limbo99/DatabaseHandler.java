@@ -57,7 +57,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         if(dbExist){
             //do nothing - database already exist
-            Log.i(TAG, "DB found");
+            Log.d(TAG, "DB found");
         }else{
 
             //By calling this method and empty database will be created into the default system path

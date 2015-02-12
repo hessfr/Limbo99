@@ -200,7 +200,7 @@ public class MainActivity extends Activity {
 
     // Mute audio that we don't here the beep sound when the recording starts:
     private void muteAudio() {
-        Log.i(TAG, "Muting audio");
+        Log.d(TAG, "Muting audio");
         AudioManager audioManager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
         audioManager.setStreamMute(AudioManager.STREAM_ALARM, true);
@@ -210,7 +210,7 @@ public class MainActivity extends Activity {
     }
 
     private void unmuteAudio() {
-        Log.i(TAG, "Unmuting audio");
+        Log.d(TAG, "Unmuting audio");
         AudioManager audioManager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, false);
         audioManager.setStreamMute(AudioManager.STREAM_ALARM, false);
@@ -229,7 +229,7 @@ public class MainActivity extends Activity {
             // Stop recording
             micButton.clearAnimation();
             isRunning = false;
-            Log.i(TAG, "Recording stopped");
+            Log.d(TAG, "Recording stopped");
         }
     }
 
@@ -268,32 +268,41 @@ public class MainActivity extends Activity {
 
     private class DatabaseLookupTask extends AsyncTask<ArrayList, Void, Double> {
         @Override
-        protected Double doInBackground(ArrayList... inArrayList) {
+        protected Double doInBackground(ArrayList... inArray) {
+
+            ArrayList<String> data = inArray[0];
+
+            // Only take the most likely string:
+            String completeResult = data.get(0);
+
+            // Split string after spaces to get individual strings for each word:
+            String[] wordArray = completeResult.split(" ");
 
             datasource = new WordsDataSource(context);
             datasource.open();
-
             String inputLanguage = mPrefs.getString("input_language", "");
             if (inputLanguage.equals("")) {
                 inputLanguage = "en";
             }
 
-            int wordsFoundInDB = 0;
-            int totalWords = 0;
+            //TODO
 
-            for (ArrayList<String> arrayList : inArrayList) {
+            int profanityCnt = 0;
+            for (String s : wordArray) {
 
-                totalWords = arrayList.size();
-                for (String str : arrayList) {
-                    Boolean res = datasource.checkIfWordInTable(inputLanguage, str);
+                Log.i(TAG, s);
 
-                    if (res) {
-                        wordsFoundInDB++;
-                        Log.i(TAG, "Word " + str + " found");
+                // Check how many words where censored by Google service already:
+                if (s.contains("*")) {
+                    profanityCnt++;
+                } else {
+                    if (datasource.checkIfWordInTable(inputLanguage, s)) {
+                        profanityCnt++;
                     }
                 }
             }
-            Double hitRate = wordsFoundInDB/( (double) totalWords);
+
+            Double hitRate = profanityCnt/( (double) (wordArray.length+1));
 
             Log.i(TAG, "hitRate " + hitRate);
 
