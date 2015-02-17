@@ -95,7 +95,7 @@ public final class Gauge extends View {
         super(context, attrs);
         init();
 
-        setValueTarget((float) 0);
+        setValueTarget(50.0f);
     }
 
     public Gauge(Context context, AttributeSet attrs, int defStyle) {
@@ -488,9 +488,9 @@ public final class Gauge extends View {
 
     private float getRelativePosition() {
         if (handPosition < centerDegree) {
-            return - (centerDegree - handPosition) / (float) (centerDegree - minDegrees);
+            return - (centerDegree - handPosition) / (float) (centerDegree - (minDegrees - maxJitterDeflection));
         } else {
-            return (handPosition - centerDegree) / (float) (maxDegrees - centerDegree);
+            return (handPosition - centerDegree) / (float) ((maxDegrees + maxJitterDeflection) - centerDegree);
         }
     }
 
