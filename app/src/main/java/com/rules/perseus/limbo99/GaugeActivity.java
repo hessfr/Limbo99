@@ -8,14 +8,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import com.rules.perseus.limbo99.Gauge;
-
 import java.util.Random;
 
 
 public class GaugeActivity extends Activity {
 
-    private static final String TAG = "Gaugeactivity";
+    private static final String TAG = "GaugeActivity";
 
     private Button btnMove;
     private Gauge myGauge;

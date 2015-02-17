@@ -77,10 +77,12 @@ public final class Gauge extends View {
 
     private boolean jitterState = true;
     private boolean oscillationSign = true;
-    int maxOscillation = 4;
+
+    // defines the max deflection when jittering
+    int maxJitterDeflection = 4;
 
     // defines how fast the hand is moving:
-    private float accFactorJitter = 150.0f;
+    private float accFactorJitter = 100.0f;
     private float accFactorValue = 10.0f;
 
     public Gauge(Context context) {
@@ -146,7 +148,7 @@ public final class Gauge extends View {
     }
 
     private String getTitle() {
-        return "abcdefgh!";
+        return "abcdefgh";
     }
 
     private void initDrawingTools() {
@@ -201,9 +203,10 @@ public final class Gauge extends View {
         scalePaint.setStrokeWidth(0.005f);
         scalePaint.setAntiAlias(true);
 
-        scalePaint.setTextSize(0.045f);
-        scalePaint.setTypeface(Typeface.SANS_SERIF);
+        scalePaint.setTextSize(0.05f); // was 0.045f
         scalePaint.setTextScaleX(0.8f);
+        scalePaint.setTypeface(Typeface.SANS_SERIF);
+
         scalePaint.setTextAlign(Paint.Align.CENTER);
         scalePaint.setLinearText(true);
 
@@ -305,6 +308,7 @@ public final class Gauge extends View {
         canvas.drawOval(scaleRect, scalePaint);
 
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
+
         for (int i = 0; i < totalNicks; ++i) {
             float y1 = scaleRect.top;
             float y2 = y1 - 0.020f;
@@ -315,14 +319,18 @@ public final class Gauge extends View {
                 int value = nickToDegree(i);
 
                 if (value >= minDegrees && value <= maxDegrees) {
+
                     String valueString = Integer.toString(value);
-                    canvas.drawText(valueString, 0.5f, y2 - 0.015f, scalePaint);
+//                    canvas.drawText(valueString, 0.5f, y2 - 0.015f, scalePaint); // not text because of Lollipop bug
+
                 }
             }
 
             canvas.rotate(degreesPerNick, 0.5f, 0.5f);
         }
+
         canvas.restore();
+
     }
 
     private int nickToDegree(int nick) {
@@ -336,7 +344,7 @@ public final class Gauge extends View {
 
     private void drawTitle(Canvas canvas) {
         String title = getTitle();
-        canvas.drawTextOnPath(title, titlePath, 0.0f,0.0f, titlePaint);
+//        canvas.drawTextOnPath(title, titlePath, 0.0f,0.0f, titlePaint);
     }
 
     private void drawLogo(Canvas canvas) {
@@ -499,7 +507,7 @@ public final class Gauge extends View {
         // Log.i(TAG, "setJitterTarget");
 
         Random rand = new Random();
-        int oscillation = rand.nextInt(maxOscillation);
+        int oscillation = rand.nextInt(maxJitterDeflection);
 
         if (oscillationSign) {
             handTarget = valueTarget + oscillation;
