@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
 
     private TextView txtSpeechInput;
+    private TextView txtDebug;
     private ImageButton micButton;
     private SpeechRecognizer speechRecognizer;
     private SharedPreferences mPrefs;
@@ -47,6 +48,7 @@ public class MainActivity extends Activity {
         isRunning = false;
 
         txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
+        txtDebug = (TextView) findViewById(R.id.txtDebug);
         micButton = (ImageButton) findViewById(R.id.micButton);
 
         micButton.setOnClickListener(new View.OnClickListener() {
@@ -92,19 +94,6 @@ public class MainActivity extends Activity {
             inputLanguage = "en";
         }
 
-//        DatabaseLookupTask task = new DatabaseLookupTask();
-//        ArrayList<String> arrayList= new ArrayList<String>();
-//        arrayList.add("abc");
-//        arrayList.add("abcdec");
-//        arrayList.add("shit");
-//        arrayList.add("abc");
-//        task.execute(arrayList);
-
-//        if (res) {
-//            Log.i(TAG, "Word " + seachQuery + " found");
-//        } else {
-//            Log.i(TAG, "Word " + seachQuery + " NOT found");
-//        }
     }
 
     class listener implements RecognitionListener
@@ -151,13 +140,9 @@ public class MainActivity extends Activity {
             task.execute(data);
 
             try {
-                String textToDisplay = (String) txtSpeechInput.getText();
-                if (textToDisplay.isEmpty()) {
-                    textToDisplay = (String) data.get(0);
-                } else {
-                    textToDisplay = textToDisplay + " - " + data.get(0);
-                }
-                txtSpeechInput.setText(textToDisplay);
+
+                txtSpeechInput.setText((String) data.get(0));
+
             } catch (Exception e) {
                 // TODO
             }
@@ -285,12 +270,12 @@ public class MainActivity extends Activity {
                 inputLanguage = "en";
             }
 
-            //TODO
+            //TODO: also in German.....
 
             int profanityCnt = 0;
             for (String s : wordArray) {
 
-                Log.i(TAG, s);
+                // Log.i(TAG, s);
 
                 // Check how many words where censored by Google service already:
                 if (s.contains("*")) {
@@ -302,15 +287,19 @@ public class MainActivity extends Activity {
                 }
             }
 
-            Double hitRate = profanityCnt/( (double) (wordArray.length+1));
+            Double hitRate= 0.0;
 
-            Log.i(TAG, "hitRate " + hitRate);
+            if (wordArray.length != 0) {
+                hitRate = profanityCnt/( (double) (wordArray.length));
+            }
 
             return hitRate;
         }
 
         @Override
         protected void onPostExecute(Double result) {
+
+            txtDebug.setText("Hitrate: " + String.format("%.2f", result));
 
         }
     }
