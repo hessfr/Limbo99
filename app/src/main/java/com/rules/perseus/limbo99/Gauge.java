@@ -60,17 +60,16 @@ public final class Gauge extends View {
     private Bitmap background; // holds the cached static part
 
     // scale configuration
-    private static final int totalNicks = 100;
-    private static final float degreesPerNick = 360.0f / totalNicks;
-    private static final int centerDegree = 50; // the one in the top center (12 o'clock)
-    public static final int minDegrees = 0;
-    public static final int maxDegrees = 100;
+    private static final int totalNicks = 30;
+    private static final float valuesPerNick = 180.0f / totalNicks;
+    private static final int centerValue = 50; // the one in the top center (12 o'clock)
+    public static final int minValue = 0;
+    public static final int maxValue = 100;
 
-    // hand dynamics -- all are angular expressed in F degrees
     private boolean handInitialized = false;
-    private float handPosition = centerDegree;
-    private float handTarget = centerDegree; // of the animation itself (will changed when jittering)
-    private float valueTarget = centerDegree; // of the actual value (won't change when jittering)
+    private float handPosition = centerValue;
+    private float handTarget = centerValue; // of the animation itself (will changed when jittering)
+    private float valueTarget = centerValue; // of the actual value (won't change when jittering)
     private float handVelocity = 0.0f;
     private float handAcceleration = 0.0f;
     private long lastHandMoveTime = -1L;
@@ -290,35 +289,50 @@ public final class Gauge extends View {
     }
 
     private void drawRim(Canvas canvas) {
+
         // first, draw the metallic body
-        canvas.drawOval(rimRect, rimPaint);
+//        canvas.drawOval(rimRect, rimPaint);
+        canvas.drawArc(rimRect, 0, -180, true, rimPaint);
+
+
         // now the outer rim circle
-        canvas.drawOval(rimRect, rimCirclePaint);
+//        canvas.drawOval(rimRect, rimCirclePaint);
+        canvas.drawArc(rimRect, 0, -180, true, rimCirclePaint);
     }
 
     private void drawFace(Canvas canvas) {
-        canvas.drawOval(faceRect, facePaint);
+
+//        canvas.drawOval(faceRect, facePaint);
+        canvas.drawArc(faceRect, 0, -180, true, facePaint);
+
+
         // draw the inner rim circle
-        canvas.drawOval(faceRect, rimCirclePaint);
+//        canvas.drawOval(faceRect, rimCirclePaint);
+        canvas.drawArc(faceRect, 0, -180, true, rimCirclePaint);
+
+
         // draw the rim shadow inside the face
-        canvas.drawOval(faceRect, rimShadowPaint);
+//        canvas.drawOval(faceRect, rimShadowPaint);
+        canvas.drawArc(faceRect, 0, -180, true, rimCirclePaint);
     }
 
     private void drawScale(Canvas canvas) {
-        canvas.drawOval(scaleRect, scalePaint);
 
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
 
-        for (int i = 0; i < totalNicks; ++i) {
+        canvas.rotate(-90, 0.5f, 0.5f);
+
+        for (int i = -(totalNicks/2); i < (totalNicks/2); ++i) {
             float y1 = scaleRect.top;
             float y2 = y1 - 0.020f;
 
             canvas.drawLine(0.5f, y1, 0.5f, y2, scalePaint);
 
             if (i % 5 == 0) {
-                int value = nickToDegree(i);
 
-                if (value >= minDegrees && value <= maxDegrees) {
+                int value = i;
+
+                if (value >= minValue && value <= maxValue) {
 
                     String valueString = Integer.toString(value);
 //                    canvas.drawText(valueString, 0.5f, y2 - 0.015f, scalePaint); // not text because of Lollipop bug
@@ -326,20 +340,15 @@ public final class Gauge extends View {
                 }
             }
 
-            canvas.rotate(degreesPerNick, 0.5f, 0.5f);
+            canvas.rotate(valuesPerNick, 0.5f, 0.5f);
         }
 
         canvas.restore();
 
     }
 
-    private int nickToDegree(int nick) {
-        int rawDegree = ((nick < totalNicks / 2) ? nick : (nick - totalNicks)) * 2;
-        return rawDegree + centerDegree;
-    }
-
     private float degreeToAngle(float degree) {
-        return (degree - centerDegree) / 2.0f * degreesPerNick;
+        return (degree - centerValue) / 2.0f * valuesPerNick;
     }
 
     private void drawTitle(Canvas canvas) {
@@ -487,10 +496,10 @@ public final class Gauge extends View {
     }
 
     private float getRelativePosition() {
-        if (handPosition < centerDegree) {
-            return - (centerDegree - handPosition) / (float) (centerDegree - (minDegrees - maxJitterDeflection));
+        if (handPosition < centerValue) {
+            return - (centerValue - handPosition) / (float) (centerValue - (minValue - maxJitterDeflection));
         } else {
-            return (handPosition - centerDegree) / (float) ((maxDegrees + maxJitterDeflection) - centerDegree);
+            return (handPosition - centerValue) / (float) ((maxValue + maxJitterDeflection) - centerValue);
         }
     }
 
