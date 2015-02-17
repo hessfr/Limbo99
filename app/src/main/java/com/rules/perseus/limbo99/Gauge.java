@@ -78,7 +78,7 @@ public final class Gauge extends View {
     private boolean oscillationSign = true;
 
     // defines the max deflection when jittering
-    int maxJitterDeflection = 4;
+    int maxJitterDeflection = 2;
 
     // defines how fast the hand is moving:
     private float accFactorJitter = 100.0f;
@@ -227,7 +227,7 @@ public final class Gauge extends View {
 
         logoPaint = new Paint();
         logoPaint.setFilterBitmap(true);
-        logo = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.androidlogo);
+        logo = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.turd_transparent);
         logoMatrix = new Matrix();
         logoScale = (1.0f / logo.getWidth()) * 0.3f;
         logoMatrix.setScale(logoScale, logoScale);
@@ -357,9 +357,15 @@ public final class Gauge extends View {
     }
 
     private void drawLogo(Canvas canvas) {
+
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
-        canvas.translate(0.5f - logo.getWidth() * logoScale / 2.0f,
-                0.5f - logo.getHeight() * logoScale / 2.0f);
+
+//        canvas.translate(0.5f - logo.getWidth() * logoScale / 2.0f,
+//                0.5f - logo.getHeight() * logoScale / 2.0f);
+
+//        canvas.translate(0.5f - logo.getWidth() * logoScale / 2.0f, 0.5f);
+
+        canvas.translate(0.5f - logo.getWidth() * logoScale / 2.0f, 0.5f - logo.getHeight() * logoScale);
 
         int color = 0x00000000;
         float position = getRelativePosition();
