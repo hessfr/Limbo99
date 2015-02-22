@@ -25,6 +25,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.tartarus.snowball.SnowballStemmer;
+import org.tartarus.snowball.ext.englishStemmer;
+
 public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivity";
@@ -93,6 +96,16 @@ public class MainActivity extends Activity {
         if (inputLanguage.equals("")) {
             inputLanguage = "en";
         }
+
+        SnowballStemmer snowballStemmer = new englishStemmer();
+        snowballStemmer.setCurrent("presumably");
+        snowballStemmer.stem();
+        String result = snowballStemmer.getCurrent();
+
+        Log.i(TAG, "Stemming result: " + result);
+
+
+
 
     }
 
