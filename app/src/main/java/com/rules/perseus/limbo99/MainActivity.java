@@ -39,6 +39,8 @@ public class MainActivity extends Activity {
     private SharedPreferences mPrefs;
     private boolean isRunning;
     WordsDataSource datasource;
+    SnowballStemmer snowballStemmer = new englishStemmer();
+
     Context context = this;
 
     @Override
@@ -96,16 +98,6 @@ public class MainActivity extends Activity {
         if (inputLanguage.equals("")) {
             inputLanguage = "en";
         }
-
-        SnowballStemmer snowballStemmer = new englishStemmer();
-        snowballStemmer.setCurrent("presumably");
-        snowballStemmer.stem();
-        String result = snowballStemmer.getCurrent();
-
-        Log.i(TAG, "Stemming result: " + result);
-
-
-
 
     }
 
@@ -275,6 +267,14 @@ public class MainActivity extends Activity {
 
             // Split string after spaces to get individual strings for each word:
             String[] wordArray = completeResult.split(" ");
+
+            // Stem each word
+            for(int i=0; i<wordArray.length; i++) {
+
+                snowballStemmer.setCurrent(wordArray[i]);
+                snowballStemmer.stem();
+                wordArray[i] = snowballStemmer.getCurrent();
+            }
 
             datasource = new WordsDataSource(context);
             datasource.open();

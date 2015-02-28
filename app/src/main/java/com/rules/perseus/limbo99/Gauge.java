@@ -258,6 +258,7 @@ public final class Gauge extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
         Log.d(TAG, "Width spec: " + MeasureSpec.toString(widthMeasureSpec));
         Log.d(TAG, "Height spec: " + MeasureSpec.toString(heightMeasureSpec));
 
@@ -267,25 +268,33 @@ public final class Gauge extends View {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        int chosenWidth = chooseDimension(widthMode, widthSize);
-        int chosenHeight = chooseDimension(heightMode, heightSize);
+        int chosenWidth = chooseWidth(widthMode, widthSize);
+        int chosenHeight = chooseHeight(heightMode, heightSize);
 
-        int chosenDimension = Math.min(chosenWidth, chosenHeight);
-
-        setMeasuredDimension(chosenDimension, chosenDimension);
+        setMeasuredDimension(chosenWidth, chosenHeight);
     }
 
-    private int chooseDimension(int mode, int size) {
+    private int chooseWidth(int mode, int size) {
         if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
             return size;
         } else { // (mode == MeasureSpec.UNSPECIFIED)
-            return getPreferredSize();
+            return getPreferredWidth();
+        }
+    }
+    private int chooseHeight(int mode, int size) {
+        if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
+            return (int) (size/2 + size*0.25);
+        } else { // (mode == MeasureSpec.UNSPECIFIED)
+            return getPreferredHeight();
         }
     }
 
     // in case there is no size specified
-    private int getPreferredSize() {
+    private int getPreferredWidth() {
         return 300;
+    }
+    private int getPreferredHeight() {
+        return 200;
     }
 
     private void drawRim(Canvas canvas) {
