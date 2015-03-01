@@ -22,11 +22,6 @@
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity" >
         </activity>
-        <activity
-            android:name=".GaugeActivity"
-            android:label="@string/title_activity_gauge"
-            android:parentActivityName=".MainActivity" >
-        </activity>
     </application>
 
 </manifest>

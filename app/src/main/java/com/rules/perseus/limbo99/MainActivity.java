@@ -43,6 +43,13 @@ public class MainActivity extends Activity {
 
     Context context = this;
 
+/*
+Random rand = new Random();
+int randomNum = rand.nextInt((myGauge.maxValue - myGauge.minValue) + 1) + myGauge.minValue;
+
+myGauge.setValueTarget(randomNum);
+     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -236,9 +243,6 @@ public class MainActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                return true;
-            case R.id.action_gauge:
-                startActivity(new Intent(MainActivity.this, GaugeActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);
