@@ -121,6 +121,7 @@ public final class Gauge extends View {
 
         handInitialized = bundle.getBoolean("handInitialized");
         handPosition = bundle.getFloat("handPosition");
+        handPosition = bundle.getFloat("handPosition");
         handTarget = bundle.getFloat("handTarget");
         handVelocity = bundle.getFloat("handVelocity");
         handAcceleration = bundle.getFloat("handAcceleration");
@@ -155,7 +156,8 @@ public final class Gauge extends View {
 
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-        rimRect = new RectF(0.1f, 0.1f, 0.9f, 0.9f);
+//        rimRect = new RectF(0.1f, 0.1f, 0.9f, 0.9f);
+        rimRect = new RectF(0.01f, 0.01f, 0.99f, 0.99f);
 
         // the linear gradient is a bit skewed for realism
         rimPaint = new Paint();
@@ -239,14 +241,18 @@ public final class Gauge extends View {
         handPaint.setShadowLayer(0.01f, -0.005f, -0.005f, 0x7f000000);
         handPaint.setStyle(Paint.Style.FILL);
 
+        float handCenter = 0.5f;
+        float handLength = 0.40f;
+        float rearDim = 0.125f;
+
         handPath = new Path();
-        handPath.moveTo(0.5f, 0.5f + 0.2f);
-        handPath.lineTo(0.5f - 0.010f, 0.5f + 0.2f - 0.007f);
-        handPath.lineTo(0.5f - 0.002f, 0.5f - 0.32f);
-        handPath.lineTo(0.5f + 0.002f, 0.5f - 0.32f);
-        handPath.lineTo(0.5f + 0.010f, 0.5f + 0.2f - 0.007f);
-        handPath.lineTo(0.5f, 0.5f + 0.2f);
-        handPath.addCircle(0.5f, 0.5f, 0.025f, Path.Direction.CW);
+        handPath.moveTo(handCenter, handCenter + rearDim);
+        handPath.lineTo(handCenter - 0.010f, handCenter + rearDim - 0.007f);
+        handPath.lineTo(handCenter - 0.002f, handCenter - handLength);
+        handPath.lineTo(handCenter + 0.002f, handCenter - handLength);
+        handPath.lineTo(handCenter + 0.010f, handCenter + rearDim - 0.007f);
+        handPath.lineTo(handCenter, handCenter + rearDim);
+        handPath.addCircle(handCenter, handCenter, 0.025f, Path.Direction.CW);
 
         handScrewPaint = new Paint();
         handScrewPaint.setAntiAlias(true);
