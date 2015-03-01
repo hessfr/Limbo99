@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="20dp"
         android:gravity="center"
         android:orientation="vertical" >
 
@@ -59,6 +59,14 @@
             android:textColor="@color/white"
             android:textSize="15dp"
             android:textStyle="normal" />
+
+        <Button
+            android:id="@+id/tmpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="tmp"
+            />
+
     </LinearLayout>
 
 </RelativeLayout>

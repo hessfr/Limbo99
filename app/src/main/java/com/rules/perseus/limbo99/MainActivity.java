@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -40,15 +42,12 @@ public class MainActivity extends Activity {
     private boolean isRunning;
     WordsDataSource datasource;
     SnowballStemmer snowballStemmer = new englishStemmer();
+    private Button tmpButton;
+    private Gauge myGauge;
 
     Context context = this;
 
-/*
-Random rand = new Random();
-int randomNum = rand.nextInt((myGauge.maxValue - myGauge.minValue) + 1) + myGauge.minValue;
 
-myGauge.setValueTarget(randomNum);
-     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +75,24 @@ myGauge.setValueTarget(randomNum);
                 }
             }
         });
+
+        myGauge = (Gauge) findViewById(R.id.gauge);
+        //TODO: to be deleted later:
+        tmpButton = (Button) findViewById(R.id.tmpButton);
+        tmpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.getId() == R.id.tmpButton) {
+
+                    Random rand = new Random();
+                    int randomNum = rand.nextInt((myGauge.getMaxValue() - myGauge.getMinValue()) + 1) + myGauge.getMinValue();
+
+                    myGauge.setValueTarget(randomNum);
+
+                }
+            }
+        });
+
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new listener());

@@ -63,8 +63,8 @@ public final class Gauge extends View {
     private static final int totalNicks = 30;
     private static final float valuesPerNick = 180.0f / totalNicks;
     private static final int centerValue = 50; // the one in the top center (12 o'clock)
-    public static final int minValue = 0;
-    public static final int maxValue = 100;
+    private static final int minValue = 0;
+    private static final int maxValue = 100;
 
     private boolean handInitialized = false;
     private float handPosition = centerValue;
@@ -209,7 +209,7 @@ public final class Gauge extends View {
         scalePaint.setTextAlign(Paint.Align.CENTER);
         scalePaint.setLinearText(true);
 
-        float scalePosition = 0.10f;
+        float scalePosition = 0.035f;
         scaleRect = new RectF();
         scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
                 faceRect.right - scalePosition, faceRect.bottom - scalePosition);
@@ -333,7 +333,7 @@ public final class Gauge extends View {
 
         for (int i = -(totalNicks/2); i < (totalNicks/2); ++i) {
             float y1 = scaleRect.top;
-            float y2 = y1 - 0.020f;
+            float y2 = y1 - 0.02f;
 
             canvas.drawLine(0.5f, y1, 0.5f, y2, scalePaint);
 
@@ -542,5 +542,13 @@ public final class Gauge extends View {
         }
         handInitialized = true;
         invalidate();
+    }
+
+    public int getMinValue() {
+        return minValue;
+    }
+
+    public int getMaxValue() {
+        return maxValue;
     }
 }
