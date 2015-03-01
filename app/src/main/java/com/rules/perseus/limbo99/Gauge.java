@@ -78,10 +78,11 @@ public final class Gauge extends View {
     private boolean oscillationSign = true;
 
     // defines the max deflection when jittering
-    int maxJitterDeflection = 2;
+    int maxJitterDeflection = 4;
 
     // defines how fast the hand is moving:
-    private float accFactorJitter = 100.0f;
+    private float accFactorJitter = 75.0f;
+
     private float accFactorValue = 10.0f;
 
     public Gauge(Context context) {
@@ -356,8 +357,9 @@ public final class Gauge extends View {
 
     }
 
-    private float degreeToAngle(float degree) {
-        return (degree - centerValue) / 2.0f * valuesPerNick;
+    private float valueToAngle(float value) {
+//        return (value - centerValue) / 2.0f * valuesPerNick;
+        return (value - centerValue) * (90 / (float) centerValue);
     }
 
     private void drawTitle(Canvas canvas) {
@@ -394,7 +396,7 @@ public final class Gauge extends View {
     private void drawHand(Canvas canvas) {
         if (handInitialized) {
 
-            float handAngle = degreeToAngle(handPosition);
+            float handAngle = valueToAngle(handPosition);
             canvas.save(Canvas.MATRIX_SAVE_FLAG);
             canvas.rotate(handAngle, 0.5f, 0.5f);
             canvas.drawPath(handPath, handPaint);
