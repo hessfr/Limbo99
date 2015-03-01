@@ -358,7 +358,7 @@ public final class Gauge extends View {
     }
 
     private float valueToAngle(float value) {
-//        return (value - centerValue) / 2.0f * valuesPerNick;
+
         return (value - centerValue) * (90 / (float) centerValue);
     }
 
@@ -371,22 +371,26 @@ public final class Gauge extends View {
 
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
 
-//        canvas.translate(0.5f - logo.getWidth() * logoScale / 2.0f,
-//                0.5f - logo.getHeight() * logoScale / 2.0f);
-
-//        canvas.translate(0.5f - logo.getWidth() * logoScale / 2.0f, 0.5f);
-
         canvas.translate(0.5f - logo.getWidth() * logoScale / 2.0f, 0.5f - logo.getHeight() * logoScale);
 
-        int color = 0x00000000;
+        /*
+        Format of the add parameter:
+
+        0 x 00     00   00    00
+            alpha  red  green blue
+
+        ->  xx << 8 changed green values
+            xx << 16 changed red values
+            xx changed blue values
+         */
+
+        int addColor = 0x00000000;
+        int multColor = 0xff338822;
         float position = getRelativePosition();
-        if (position < 0) {
-            color |= (int) ((0xf0) * -position); // blue
-        } else {
-            color |= ((int) ((0xf0) * position)) << 16; // red
-        }
-        //Log.d(TAG, "*** " + Integer.toHexString(color));
-        LightingColorFilter logoFilter = new LightingColorFilter(0xff338822, color);
+
+        addColor |= ((int) ((0xf0) * position) << 16);
+
+        LightingColorFilter logoFilter = new LightingColorFilter(multColor, addColor);
         logoPaint.setColorFilter(logoFilter);
 
         canvas.drawBitmap(logo, logoMatrix, logoPaint);
@@ -513,11 +517,15 @@ public final class Gauge extends View {
     }
 
     private float getRelativePosition() {
+
+        float tmp = 0.0f;
         if (handPosition < centerValue) {
-            return - (centerValue - handPosition) / (float) (centerValue - (minValue - maxJitterDeflection));
+            tmp = - (centerValue - handPosition) / (float) (centerValue - (minValue - maxJitterDeflection));
         } else {
-            return (handPosition - centerValue) / (float) ((maxValue + maxJitterDeflection) - centerValue);
+            tmp = (handPosition - centerValue) / (float) ((maxValue + maxJitterDeflection) - centerValue);
         }
+
+        return (0.5f * tmp) + 0.5f;
     }
 
     public void setValueTarget(float newValue) {
