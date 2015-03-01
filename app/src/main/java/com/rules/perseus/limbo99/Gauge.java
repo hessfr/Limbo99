@@ -386,7 +386,8 @@ public final class Gauge extends View {
 
         int addColor = 0x00000000;
         int multColor = 0xff338822;
-        float position = getRelativePosition();
+//        float position = getRelativePosition();
+        float position = calculateColor();
 
         addColor |= ((int) ((0xf0) * position) << 16);
 
@@ -516,6 +517,11 @@ public final class Gauge extends View {
         }
     }
 
+    /*
+     Return the relative position between 0 and 1 for color calculation.
+
+     maxJitterDeflection is added to avoid discontinuous behavior.
+      */
     private float getRelativePosition() {
 
         float tmp = 0.0f;
@@ -526,6 +532,15 @@ public final class Gauge extends View {
         }
 
         return (0.5f * tmp) + 0.5f;
+    }
+
+    /*
+     We want the color to change less in the beginning (i.e. stay brown longer) and more in the end,
+     so we apply a parabolic function on to of the relative position between 0 and 1:
+     f(x) = x^2
+     */
+    private float calculateColor() {
+        return ((float) Math.pow(getRelativePosition(), 2));
     }
 
     public void setValueTarget(float newValue) {
