@@ -85,6 +85,9 @@ public final class Gauge extends View {
 
     private float accFactorValue = 10.0f;
 
+    // defines the size of the logo:
+    private float logoScaleFactor = 0.375f;
+
     public Gauge(Context context) {
         super(context);
         init();
@@ -232,7 +235,7 @@ public final class Gauge extends View {
         logoPaint.setFilterBitmap(true);
         logo = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.turd_transparent);
         logoMatrix = new Matrix();
-        logoScale = (1.0f / logo.getWidth()) * 0.3f;
+        logoScale = (1.0f / logo.getWidth()) * logoScaleFactor;
         logoMatrix.setScale(logoScale, logoScale);
 
         handPaint = new Paint();
