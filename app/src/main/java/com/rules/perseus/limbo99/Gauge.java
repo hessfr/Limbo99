@@ -12,6 +12,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RadialGradient;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
@@ -246,6 +247,7 @@ public final class Gauge extends View {
         steamPaint = new Paint();
         steamPaint.setFilterBitmap(true);
         steamBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.steam_only);
+
         steamMatrix = new Matrix();
         steamScale = (1.0f / steamBitmap.getWidth()) * logoScaleFactor;
         steamMatrix.setScale(steamScale, steamScale);
@@ -425,7 +427,17 @@ public final class Gauge extends View {
 
         canvas.translate(0.5f - steamBitmap.getWidth() * steamScale / 2.0f, 0.5f - steamBitmap.getHeight() * steamScale);
 
-        canvas.drawBitmap(steamBitmap, steamMatrix, steamPaint);
+
+//        canvas.drawBitmap(steamBitmap, steamMatrix, steamPaint);
+
+//        steamScale = (1.0f / steamBitmap.getWidth()) * logoScaleFactor;
+//        steamMatrix.setScale(steamScale, steamScale);
+
+        // recreate the new Bitmap
+//        Bitmap resizedBitmap = Bitmap.createBitmap(steamBitmap, 0, 0, 150, 150);
+        Bitmap resizedBitmap = Bitmap.createBitmap(steamBitmap, 0, 0, steamBitmap.getWidth(), steamBitmap.getHeight()/3); //TODO: xxxx continue here
+
+        canvas.drawBitmap(resizedBitmap, steamMatrix, steamPaint);
         canvas.restore();
     }
 
