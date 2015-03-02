@@ -45,10 +45,15 @@ public final class Gauge extends View {
     private Paint titlePaint;
     private Path titlePath;
 
-    private Paint logoPaint;
-    private Bitmap logo;
-    private Matrix logoMatrix;
-    private float logoScale;
+    private Paint turdPaint;
+    private Bitmap turdBitmap;
+    private Matrix turdMatrix;
+    private float turdScale;
+
+    private Paint steamPaint;
+    private Bitmap steamBitmap;
+    private Matrix steamMatrix;
+    private float steamScale;
 
     private Paint handPaint;
     private Path handPath;
@@ -231,12 +236,19 @@ public final class Gauge extends View {
         titlePath = new Path();
         titlePath.addArc(new RectF(0.24f, 0.24f, 0.76f, 0.76f), -180.0f, -180.0f);
 
-        logoPaint = new Paint();
-        logoPaint.setFilterBitmap(true);
-        logo = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.turd_transparent);
-        logoMatrix = new Matrix();
-        logoScale = (1.0f / logo.getWidth()) * logoScaleFactor;
-        logoMatrix.setScale(logoScale, logoScale);
+        turdPaint = new Paint();
+        turdPaint.setFilterBitmap(true);
+        turdBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.turd_transparent);
+        turdMatrix = new Matrix();
+        turdScale = (1.0f / turdBitmap.getWidth()) * logoScaleFactor;
+        turdMatrix.setScale(turdScale, turdScale);
+
+        steamPaint = new Paint();
+        steamPaint.setFilterBitmap(true);
+        steamBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.steam_only);
+        steamMatrix = new Matrix();
+        steamScale = (1.0f / steamBitmap.getWidth()) * logoScaleFactor;
+        steamMatrix.setScale(steamScale, steamScale);
 
         handPaint = new Paint();
         handPaint.setAntiAlias(true);
@@ -376,11 +388,11 @@ public final class Gauge extends View {
 //        canvas.drawTextOnPath(title, titlePath, 0.0f,0.0f, titlePaint);
     }
 
-    private void drawLogo(Canvas canvas) {
+    private void drawTurd(Canvas canvas) {
 
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
 
-        canvas.translate(0.5f - logo.getWidth() * logoScale / 2.0f, 0.5f - logo.getHeight() * logoScale);
+        canvas.translate(0.5f - turdBitmap.getWidth() * turdScale / 2.0f, 0.5f - turdBitmap.getHeight() * turdScale);
 
         /*
         Format of the add parameter:
@@ -400,10 +412,20 @@ public final class Gauge extends View {
 
         addColor |= ((int) ((0xf0) * position) << 16);
 
-        LightingColorFilter logoFilter = new LightingColorFilter(multColor, addColor);
-        logoPaint.setColorFilter(logoFilter);
+        LightingColorFilter turdFilter = new LightingColorFilter(multColor, addColor);
+        turdPaint.setColorFilter(turdFilter);
 
-        canvas.drawBitmap(logo, logoMatrix, logoPaint);
+        canvas.drawBitmap(turdBitmap, turdMatrix, turdPaint);
+        canvas.restore();
+    }
+
+    private void drawSteam(Canvas canvas) {
+
+        canvas.save(Canvas.MATRIX_SAVE_FLAG);
+
+        canvas.translate(0.5f - steamBitmap.getWidth() * steamScale / 2.0f, 0.5f - steamBitmap.getHeight() * steamScale);
+
+        canvas.drawBitmap(steamBitmap, steamMatrix, steamPaint);
         canvas.restore();
     }
 
@@ -460,7 +482,8 @@ public final class Gauge extends View {
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
         canvas.scale(scale, scale);
 
-        drawLogo(canvas);
+        drawTurd(canvas);
+        drawSteam(canvas);
         drawHand(canvas);
 
         canvas.restore();
