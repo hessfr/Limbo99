@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.tartarus.snowball.SnowballStemmer;
@@ -92,6 +94,21 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+
+        // test only --------------------------
+        final ImageView animImageView = (ImageView) findViewById(R.id.ivSmokeAnim);
+        animImageView.setBackgroundResource(R.drawable.anim_smoke);
+        animImageView.post(new Runnable() {
+            @Override
+            public void run() {
+                AnimationDrawable frameAnimation =
+                        (AnimationDrawable) animImageView.getBackground();
+                frameAnimation.start();
+            }
+        });
+        // test only --------------------------
+
 
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);

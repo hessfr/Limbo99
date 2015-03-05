@@ -34,13 +34,21 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
+    <ImageView
+        android:id="@+id/ivSmokeAnim"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="175dp"
+        android:layout_marginTop="135dp"
+        android:contentDescription="Animation" />
+
     <LinearLayout
         android:id="@+id/buttonLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
         android:gravity="center"
         android:orientation="vertical" >
 

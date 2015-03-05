@@ -439,6 +439,7 @@ public final class Gauge extends View {
 
         canvas.drawBitmap(resizedBitmap, steamMatrix, steamPaint);
         canvas.restore();
+
     }
 
     private void drawHand(Canvas canvas) {
@@ -495,7 +496,7 @@ public final class Gauge extends View {
         canvas.scale(scale, scale);
 
         drawTurd(canvas);
-        drawSteam(canvas);
+//        drawSteam(canvas);
         drawHand(canvas);
 
         canvas.restore();
