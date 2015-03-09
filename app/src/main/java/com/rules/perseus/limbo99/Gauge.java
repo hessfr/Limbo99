@@ -12,18 +12,16 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RadialGradient;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
 
 public final class Gauge extends View {
@@ -52,9 +50,31 @@ public final class Gauge extends View {
     private float turdScale;
 
     private Paint steamPaint;
-    private Bitmap steamBitmap;
-    private Matrix steamMatrix;
-    private float steamScale;
+    private Matrix steamMatrix0;
+    private Matrix steamMatrix1;
+    private Matrix steamMatrix2;
+
+//        float xScale = 0.00075f;
+//        float yScale = 0.0010f;
+
+    float xScaleStart = 0.00075f;
+    float yScaleStart = 0.0009f;
+
+    // Default y position when value = zero:
+    float ySteamPosDefault1 = 0.17f;
+    float ySteamPosDefault2 = 0.24f;
+    float ySteamPosDefault3 = 0.22f;
+
+    private ArrayList<Bitmap> steamImageList;
+
+    // For the animation of the steam:
+    private long timeLastFrame;
+
+    // Time after which the new picture should be shown (in ms), i.e. the "speed" of the animation
+    private static final long animSpeed = 150;
+
+    // Number of image currently drawn:
+    private short currentAnimIdx = 0;
 
     private Paint handPaint;
     private Path handPath;
@@ -103,7 +123,6 @@ public final class Gauge extends View {
     public Gauge(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
-
         setValueTarget(50.0f);
     }
 
@@ -155,6 +174,8 @@ public final class Gauge extends View {
     private void init() {
 
         initDrawingTools();
+
+
     }
 
     private String getTitle() {
@@ -246,11 +267,39 @@ public final class Gauge extends View {
 
         steamPaint = new Paint();
         steamPaint.setFilterBitmap(true);
-        steamBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.steam_only);
 
-        steamMatrix = new Matrix();
-        steamScale = (1.0f / steamBitmap.getWidth()) * logoScaleFactor;
-        steamMatrix.setScale(steamScale, steamScale);
+        steamImageList = new ArrayList<Bitmap>();
+
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_0_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_1_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_2_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_3_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_4_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_5_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_6_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_7_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_8_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_9_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_10_transp));
+        steamImageList.add(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.smoke_11_transp));
+
+        steamMatrix0 = new Matrix();
+        steamMatrix1 = new Matrix();
+        steamMatrix2 = new Matrix();
+
+        // the middle one:
+        steamMatrix0.setScale(xScaleStart, yScaleStart);
+        steamMatrix0.postTranslate(0.465f, 0.13f);
+
+        // the left one:
+        steamMatrix1.setScale(xScaleStart, yScaleStart);
+        steamMatrix1.postTranslate(0.375f, 0.20f);
+
+        // the right one:
+        steamMatrix2.setScale(xScaleStart, yScaleStart);
+        steamMatrix2.postTranslate(0.55f, 0.18f);
+
+        timeLastFrame = System.currentTimeMillis();
 
         handPaint = new Paint();
         handPaint.setAntiAlias(true);
@@ -278,6 +327,7 @@ public final class Gauge extends View {
 
         backgroundPaint = new Paint();
         backgroundPaint.setFilterBitmap(true);
+
     }
 
     @Override
@@ -396,26 +446,7 @@ public final class Gauge extends View {
 
         canvas.translate(0.5f - turdBitmap.getWidth() * turdScale / 2.0f, 0.5f - turdBitmap.getHeight() * turdScale);
 
-        /*
-        Format of the add parameter:
-
-        0 x 00     00   00    00
-            alpha  red  green blue
-
-        ->  xx << 8 changed green values
-            xx << 16 changed red values
-            xx changed blue values
-         */
-
-        int addColor = 0x00000000;
-        int multColor = 0xff338822;
-//        float position = getRelativePosition();
-        float position = calculateColor();
-
-        addColor |= ((int) ((0xf0) * position) << 16);
-
-        LightingColorFilter turdFilter = new LightingColorFilter(multColor, addColor);
-        turdPaint.setColorFilter(turdFilter);
+        turdPaint.setColorFilter(getColorFilter());
 
         canvas.drawBitmap(turdBitmap, turdMatrix, turdPaint);
         canvas.restore();
@@ -423,21 +454,41 @@ public final class Gauge extends View {
 
     private void drawSteam(Canvas canvas) {
 
+        // TODO: if jittering is disabled, we would have to manually trigger this function,
+        // because invalidation would take place less often than every xxx ms
+
+        if ((System.currentTimeMillis() - timeLastFrame) > getAnimSpeed()) {
+
+            if (currentAnimIdx < (steamImageList.size()+2)) {
+                currentAnimIdx++;
+            } else {
+                currentAnimIdx = 0;
+            }
+
+            timeLastFrame = System.currentTimeMillis();
+        }
+
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
 
-        canvas.translate(0.5f - steamBitmap.getWidth() * steamScale / 2.0f, 0.5f - steamBitmap.getHeight() * steamScale);
+        steamPaint.setColorFilter(getColorFilter());
+
+        steamMatrix0.setScale(xScaleStart, getAnimHeight());
+//        steamMatrix0.postTranslate(0.465f, (0.13f + getAnimHeight()));
+        steamMatrix0.postTranslate(0.465f, ySteamPosDefault1 - getVerticalOffset());
+
+        steamMatrix1.setScale(xScaleStart, getAnimHeight());
+//        steamMatrix1.postTranslate(0.375f, (0.20f + getAnimHeight()));
+        steamMatrix1.postTranslate(0.375f, ySteamPosDefault2 - getVerticalOffset());
+
+        steamMatrix2.setScale(xScaleStart, getAnimHeight());
+//        steamMatrix2.postTranslate(0.55f, (0.18f + getAnimHeight()));
+        steamMatrix2.postTranslate(0.55f, ySteamPosDefault3 - getVerticalOffset());
 
 
-//        canvas.drawBitmap(steamBitmap, steamMatrix, steamPaint);
+        canvas.drawBitmap(steamImageList.get(currentAnimIdx%12), steamMatrix0, steamPaint);
+        canvas.drawBitmap(steamImageList.get((currentAnimIdx+1)%12), steamMatrix1, steamPaint);
+        canvas.drawBitmap(steamImageList.get((currentAnimIdx+2)%12), steamMatrix2, steamPaint);
 
-//        steamScale = (1.0f / steamBitmap.getWidth()) * logoScaleFactor;
-//        steamMatrix.setScale(steamScale, steamScale);
-
-        // recreate the new Bitmap
-//        Bitmap resizedBitmap = Bitmap.createBitmap(steamBitmap, 0, 0, 150, 150);
-        Bitmap resizedBitmap = Bitmap.createBitmap(steamBitmap, 0, 0, steamBitmap.getWidth(), steamBitmap.getHeight()/3); //TODO: xxxx continue here
-
-        canvas.drawBitmap(resizedBitmap, steamMatrix, steamPaint);
         canvas.restore();
 
     }
@@ -496,12 +547,14 @@ public final class Gauge extends View {
         canvas.scale(scale, scale);
 
         drawTurd(canvas);
-//        drawSteam(canvas);
+        drawSteam(canvas);
         drawHand(canvas);
 
         canvas.restore();
 
         moveHand();
+
+
     }
 
     private void moveHand() {
@@ -594,6 +647,7 @@ public final class Gauge extends View {
         handTarget = newValue;
         valueTarget = newValue;
         handInitialized = true;
+
         invalidate();
     }
 
@@ -611,7 +665,64 @@ public final class Gauge extends View {
             oscillationSign = true;
         }
         handInitialized = true;
+
         invalidate();
+    }
+
+
+    /*
+    Color filter to change the color of the turd:
+    Format of the add parameter:
+
+    0 x 00     00   00    00
+        alpha  red  green blue
+
+    ->  xx << 8 changed green values
+        xx << 16 changed red values
+        xx changed blue values
+     */
+    private LightingColorFilter getColorFilter() {
+
+        int addColor = 0x00000000;
+        int multColor = 0xff338822;
+        float position = calculateColor();
+
+        addColor |= ((int) ((0xf0) * position) << 16);
+
+        return new LightingColorFilter(multColor, addColor);
+    }
+
+    // Return the time for how long one frame is displayed for the smoke animation
+    private int getAnimSpeed() {
+
+        int maxTime = 150;
+        int minTime = 50;
+
+        float relPos = getRelativePosition();
+
+        return (int) (relPos * (minTime - maxTime) + maxTime);
+    }
+
+    // Calculate the scaling height of the smoke animations depending on the current values
+    private float getAnimHeight() {
+
+        float minHeight = 0.00075f;
+        float maxHeight = 0.00125f;
+
+        float relPos = getRelativePosition();
+
+        return (relPos * (maxHeight - minHeight) + minHeight);
+    }
+
+    // Calculate the vertical position offset of the smoke animations depending on the current values
+    private float getVerticalOffset() {
+
+        float minOffset = 0.0f;
+        float maxOffset = 0.04f;
+
+        float relPos = getRelativePosition();
+
+        return relPos * maxOffset;
     }
 
     public int getMinValue() {
@@ -621,4 +732,5 @@ public final class Gauge extends View {
     public int getMaxValue() {
         return maxValue;
     }
+
 }

@@ -49,8 +49,6 @@ public class MainActivity extends Activity {
 
     Context context = this;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,19 +95,20 @@ public class MainActivity extends Activity {
 
 
         // test only --------------------------
-        final ImageView animImageView = (ImageView) findViewById(R.id.ivSmokeAnim);
-        animImageView.setBackgroundResource(R.drawable.anim_smoke);
-        animImageView.post(new Runnable() {
-            @Override
-            public void run() {
-                AnimationDrawable frameAnimation =
-                        (AnimationDrawable) animImageView.getBackground();
-                frameAnimation.start();
-            }
-        });
+//        final ImageView animImageView = (ImageView) findViewById(R.id.ivSmokeAnim);
+//        animImageView.setBackgroundResource(R.drawable.anim_smoke);
+//        animImageView.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                AnimationDrawable frameAnimation =
+//                        (AnimationDrawable) animImageView.getBackground();
+//                frameAnimation.start();
+//            }
+//        });
         // test only --------------------------
 
 
+//        GaugeContainer gc = (GaugeContainer) findViewById(R.id.gaugeContainer);
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new listener());

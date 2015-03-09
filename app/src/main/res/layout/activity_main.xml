@@ -34,13 +34,20 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-    <ImageView
+<!--    <ImageView
         android:id="@+id/ivSmokeAnim"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="175dp"
         android:layout_marginTop="135dp"
-        android:contentDescription="Animation" />
+        android:contentDescription="Animation" />-->
+
+<!--    <com.rules.perseus.limbo99.GaugeContainer
+        android:id="@+id/gaugeContainer"
+        android:layout_above="@+id/buttonLayout"
+        android:layout_marginBottom="20dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />-->
 
     <LinearLayout
         android:id="@+id/buttonLayout"
